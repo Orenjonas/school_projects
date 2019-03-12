@@ -1,2 +1,2 @@
-# school_projects
-School projects from different classes at UiO
+# School projects
+A repo containing projects from different classes at UiO
