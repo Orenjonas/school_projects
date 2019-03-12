@@ -1,7 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{err}{\PYGZdl{}} \PYG{n}{python} \PYG{n}{mandelbrot}\PYG{o}{.}\PYG{n}{py} \PYG{o}{\PYGZhy{}}\PYG{n}{h}
-  \PYG{n}{File} \PYG{l+s+s2}{\PYGZdq{}mandelbrot.py\PYGZdq{}}\PYG{p}{,} \PYG{n}{line} \PYG{l+m+mi}{129}
-    \PYG{n}{plt}\PYG{o}{.}\PYG{n}{imshow}\PYG{p}{(}\PYG{n}{im}\PYG{p}{,} \PYG{n}{origin}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}bottom\PYGZsq{}}\PYG{p}{,} \PYG{n}{extent}\PYG{o}{=}\PYG{p}{(}\PYG{n}{x\PYGZus{}min}\PYG{p}{,} \PYG{n}{x\PYGZus{}max}\PYG{p}{,} \PYG{n}{y\PYGZus{}min}\PYG{p}{,} \PYG{n}{y\PYGZus{}max}\PYG{p}{),} \PYG{n}{aspect}\PYG{o}{=}\PYG{n}{Ny}\PYG{o}{/}\PYG{n}{Nx}\PYG{p}{,} \PYG{n}{cmap}\PYG{o}{=}\PYG{n}{colmap}\PYG{p}{),} \PYG{n}{interpolation}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}nearest\PYGZsq{}}\PYG{p}{)}
-                                                                                                                            \PYG{o}{\PYGZca{}}
-\PYG{n+ne}{SyntaxError}\PYG{p}{:} \PYG{n}{invalid} \PYG{n}{syntax}
-\end{Verbatim}
