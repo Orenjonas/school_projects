@@ -1,0 +1,10 @@
+comment: 32
+import: 36
+string: 94
+char: 95
+special: 31
+if: 44;93
+for: 45;93
+while: 46;93
+type_declaration: 43;93
+return: 42;93

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+    <head>
+	<h3>CO2 plot</h3>
+    </head>
+    <body>
+	{% if error %}
+	<p style="color:red">{{ error }}</p>
+	{% endif %}
+
+	<form action="./CO2-plot">
+	    Choose year range (optional):<br>
+	    <br>
+	    from
+	    <br>
+	    <input type="text" name="year_from">
+	    <br>
+	    to
+	    <br>
+	    <input type="text" name="year_to">
+	    <br><br>
+	    Choose temperature range (optional):
+	    <br><br>
+	    from
+	    <br>
+	    <input type="text" name="y_min">
+	    <br>
+	    to
+	    <br>
+	    <input type="text" name="y_max">
+	    <br><br> 
+	    <input type="submit" value="Show plot">
+	    <!-- <button type="submit" id="makeTempPlotButton">Show plot</button> -->
+	</form>
+	{% block body %}
+	{% endblock %}
+    </body>
+</html>

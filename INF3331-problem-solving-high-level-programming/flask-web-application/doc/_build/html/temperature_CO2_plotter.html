@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>temperature_CO2_plotter module &#8212; Temperature and CO2 plotter 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-temperature_CO2_plotter">
+<span id="temperature-co2-plotter-module"></span><h1>temperature_CO2_plotter module<a class="headerlink" href="#module-temperature_CO2_plotter" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="temperature_CO2_plotter.bar_CO2">
+<code class="descclassname">temperature_CO2_plotter.</code><code class="descname">bar_CO2</code><span class="sig-paren">(</span><em>lower</em>, <em>upper</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/temperature_CO2_plotter.html#bar_CO2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#temperature_CO2_plotter.bar_CO2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot bar chart of countries with CO2 emission values in the given treshold and store the plot in memory.</p>
+<p>Access the plot in a html document using the img_url string with the following line:
+<code class="docutils literal notranslate"><span class="pre">`</span> <span class="pre">html</span>
+<span class="pre">&lt;img</span> <span class="pre">src=&quot;data:image/png;base64,{{img_url}}&quot;&gt;</span>
+<span class="pre">`</span></code></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd>lower (str/int/float): lower threshold
+upper (str/int/float): upper threshold</dd>
+<dt>returns:</dt>
+<dd>a base 64 encoded string used for accessing the image stored in memory.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="temperature_CO2_plotter.get_CO2_years">
+<code class="descclassname">temperature_CO2_plotter.</code><code class="descname">get_CO2_years</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/temperature_CO2_plotter.html#get_CO2_years"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#temperature_CO2_plotter.get_CO2_years" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the years included in the dataframe</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="temperature_CO2_plotter.get_temperature_months_and_years">
+<code class="descclassname">temperature_CO2_plotter.</code><code class="descname">get_temperature_months_and_years</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/temperature_CO2_plotter.html#get_temperature_months_and_years"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#temperature_CO2_plotter.get_temperature_months_and_years" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of the months and years included in the dataframe</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="temperature_CO2_plotter.make_mask">
+<code class="descclassname">temperature_CO2_plotter.</code><code class="descname">make_mask</code><span class="sig-paren">(</span><em>stats</em>, <em>year_from</em>, <em>year_to</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/temperature_CO2_plotter.html#make_mask"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#temperature_CO2_plotter.make_mask" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by the plot functions to create a masked array for plotting the desired years.</p>
+<p>If year paramaters are None, no elements are masked.</p>
+<dl class="docutils">
+<dt>returns:</dt>
+<dd>a masked array to use as an index for the dataframe to be plotted.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="temperature_CO2_plotter.plot_CO2">
+<code class="descclassname">temperature_CO2_plotter.</code><code class="descname">plot_CO2</code><span class="sig-paren">(</span><em>year_from=None</em>, <em>year_to=None</em>, <em>y_min=None</em>, <em>y_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/temperature_CO2_plotter.html#plot_CO2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#temperature_CO2_plotter.plot_CO2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot CO2 emission values and store the plot in memory.</p>
+<p>Access the plot in a html document using the img_url string with the following line:
+<code class="docutils literal notranslate"><span class="pre">`</span> <span class="pre">html</span>
+<span class="pre">&lt;img</span> <span class="pre">src=&quot;data:image/png;base64,{{img_url}}&quot;&gt;</span>
+<span class="pre">`</span></code></p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>Optional:</dt>
+<dd>year_from (str/int): Starting year
+year_to   (str/int): End year
+y_min (int): minimum value on y-axis
+y_max (int): maximum value on y-axis</dd>
+</dl>
+</dd>
+<dt>returns:</dt>
+<dd>a base 64 encoded string used for accessing the image stored in memory.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="temperature_CO2_plotter.plot_temperature">
+<code class="descclassname">temperature_CO2_plotter.</code><code class="descname">plot_temperature</code><span class="sig-paren">(</span><em>month</em>, <em>year_from=None</em>, <em>year_to=None</em>, <em>y_min=None</em>, <em>y_max=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/temperature_CO2_plotter.html#plot_temperature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#temperature_CO2_plotter.plot_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot temperatures and store the plot in memory.</p>
+<dl class="docutils">
+<dt>Access the plot in a html document using the img_url string with the following line:</dt>
+<dd><div class="first highlight-html notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p class="last">&lt;img src=”<a class="reference external" href="data:image/png;base64">data:image/png;base64</a>,{{img_url}}”&gt;</p>
+</dd>
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>Required:</dt>
+<dd>month (str): Month to present temperature for</dd>
+<dt>Optional:</dt>
+<dd>year_from (str/int): Starting year
+year_to   (str/int): End year
+y_min (int): minimum value on y-axis
+y_max (int): maximum value on y-axis</dd>
+</dl>
+</dd>
+<dt>returns:</dt>
+<dd>img_url (str): a base 64 encoded string used for accessing the image stored in memory.</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Temperature and CO2 plotter</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Jonas Øren.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/temperature_CO2_plotter.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+	<h3>CO2 plot</h3>
+    </head>
+    <body>
+	{% if error %}
+	<p style="color:red">{{ error }}</p>
+	{% endif %}
+
+	<form action="./CO2-bar">
+	    Choose CO2 threshold (Optional):
+	    <br>
+	    lower
+	    <br>
+	    <input type="text" name="lower">
+	    <br>
+	    upper
+	    <br>
+	    <input type="text" name="upper">
+	    <br><br>
+	    <br><br> 
+	    <input type="submit" value="Show plot">
+	    <!-- <button type="submit" id="makeTempPlotButton">Show plot</button> -->
+	</form>
+	<br><br>
+	<img src="data:image/png;base64,{{img_url}}">
+    </body>
+</html>

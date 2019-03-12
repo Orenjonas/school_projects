@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+	<h3>Temperature</h3>
+    </head>
+    <body>
+	{% if error %}
+	<p style="color:red">{{ error }}</p>
+	{% endif %}
+
+	<form action="./temperature-plot">
+	    Choose month:
+	    <select name=selected_month>
+		{% for month in months %}
+		{% if selected_month == month %}
+		<option value="{{month}}" selected>{{month}}</option>
+		{% else %}
+		<option value="{{month}}">{{month}}</option>
+		{% endif %}
+		{% endfor %}
+	    </select>
+	    <br><br>
+	    Choose year range (optional):<br>
+	    <br>
+	    from
+	    <br>
+	    <input type="text" name="year_from">
+	    <br>
+	    to
+	    <br>
+	    <input type="text" name="year_to">
+	    <br><br>
+	    Choose temperature range (optional):
+	    <br><br>
+	    from
+	    <br>
+	    <input type="text" name="y_min">
+	    <br>
+	    to
+	    <br>
+	    <input type="text" name="y_max">
+	    <br><br> 
+	    <input type="submit" value="Show plot">
+	    <!-- <button type="submit" id="makeTempPlotButton">Show plot</button> -->
+	</form>
+	{% block body %}
+	{% endblock %}
+    </body>
+</html>

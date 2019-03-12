@@ -1,0 +1,21 @@
+<head>
+    <title> Plots </title>
+</head>
+<body>
+    <h3>Temperature</h3>
+    Choose month:
+    <select name=selected_month>
+	{% for month in months %}
+	<option value="{{month}}">{{month}}</option>
+	<!-- <option value="Januar">Januar</option> -->
+	<!-- <option value="Februar">Februar</option> -->
+	<!-- <option value="mercedes">Mercedes</option> -->
+	<!-- <option value="audi">Audi</option> -->
+	{% endfor %}
+    </select>
+    <br>
+    <img src="/static/temperature-plot.png" alt="pic">
+    <br>
+    <h3>CO2</h3>
+    <img src="/static/plots/CO2-plot.png">
+</body>

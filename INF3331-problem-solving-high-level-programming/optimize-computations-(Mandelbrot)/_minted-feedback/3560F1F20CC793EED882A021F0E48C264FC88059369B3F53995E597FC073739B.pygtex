@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{err}{\PYGZdl{}} \PYG{n}{python} \PYG{n}{mandelbrot\PYGZus{}3}\PYG{o}{.}\PYG{n}{py}
+\PYG{n}{Traceback} \PYG{p}{(}\PYG{n}{most} \PYG{n}{recent} \PYG{n}{call} \PYG{n}{last}\PYG{p}{):}
+  \PYG{n}{File} \PYG{l+s+s2}{\PYGZdq{}mandelbrot\PYGZus{}3.py\PYGZdq{}}\PYG{p}{,} \PYG{n}{line} \PYG{l+m+mi}{3}\PYG{p}{,} \PYG{o+ow}{in} \PYG{o}{\PYGZlt{}}\PYG{n}{module}\PYG{o}{\PYGZgt{}}
+    \PYG{k+kn}{import} \PYG{n+nn}{mandelbrot\PYGZus{}solver.mandelbrot} \PYG{k+kn}{as} \PYG{n+nn}{mbs}
+\PYG{n+ne}{ImportError}\PYG{p}{:} \PYG{n}{No} \PYG{n}{module} \PYG{n}{named} \PYG{l+s+s1}{\PYGZsq{}mandelbrot\PYGZus{}solver\PYGZsq{}}
+\end{Verbatim}

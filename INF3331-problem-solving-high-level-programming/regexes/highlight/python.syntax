@@ -1,0 +1,10 @@
+"()(#.*(?:$|\n))()": comment
+"(^\s*)(def )(): function_def
+"(^\033.+m)((?:import|from ).+)()": import
+"()((?:".+"|'.+'))()": string
+"()(None)()": special
+"()(False)()": special
+"()(True)()": special
+"()(?<!\w)(elif|else|(?<!el)if)()": if
+"(^\s*)(for)()": for
+"(^\s*)(while)()": while

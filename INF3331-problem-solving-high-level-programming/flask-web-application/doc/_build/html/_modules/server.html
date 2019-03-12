@@ -1,0 +1,213 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>server &#8212; Temperature and CO2 plotter 1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for server</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">flask</span> <span class="k">import</span> <span class="n">Flask</span><span class="p">,</span> <span class="n">render_template</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">send_from_directory</span>
+<span class="kn">import</span> <span class="nn">temperature_CO2_plotter</span> <span class="k">as</span> <span class="nn">tc_plotter</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Flask</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;DOC_FOLDER&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;doc/_build/html/&#39;</span>
+
+<span class="n">docfiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;doc/_build/html/*.html&#39;</span><span class="p">)]</span>
+
+<div class="viewcode-block" id="root"><a class="viewcode-back" href="../server.html#server.root">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;filename&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">})</span>
+<span class="c1"># @app.route(&quot;/&quot;)</span>
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/&lt;filename&gt;&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">root</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="c1"># return &quot;{}&quot;.format(docfiles)</span>
+    <span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">docfiles</span><span class="p">:</span>
+        <span class="c1"># Hard to reference html files from folders outside templates/ folder</span>
+        <span class="c1"># so I did it all hacky like this to reference sphinx doc files.</span>
+        <span class="c1"># Still does not seem to play nice, but I couldnt make readthedocs work</span>
+        <span class="c1"># (couldnt use my github username or something).</span>
+        <span class="k">return</span> <span class="n">send_from_directory</span><span class="p">(</span>
+            <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;DOC_FOLDER&#39;</span><span class="p">],</span>
+            <span class="n">filename</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;choose_dataset.html&quot;</span><span class="p">)</span></div>
+
+<span class="c1"># @app.route(&quot;/docs&quot;, defaults={&quot;filename&quot;: &#39;index.html&#39;})</span>
+<span class="c1"># @app.route(&quot;/docs/&lt;path:filename&gt;&quot;)</span>
+<span class="c1"># def docs(filename):</span>
+<span class="c1">#     # return &quot;{}&quot;.format(app.config)</span>
+<span class="c1">#     # return render_template(&quot;_build/html/index.html&quot;)</span>
+
+<span class="c1"># @app.route(&quot;/temperature-plot/choos-month&quot;)</span>
+<span class="c1"># def temp_choose_month():</span>
+<span class="c1">#     return render_template(&quot;temp-choose-month.html&quot;)</span>
+
+<div class="viewcode-block" id="choose_month"><a class="viewcode-back" href="../server.html#server.choose_month">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/choose-month&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">choose_month</span><span class="p">():</span>
+    <span class="n">months</span><span class="p">,</span> <span class="n">years</span> <span class="o">=</span> <span class="n">tc_plotter</span><span class="o">.</span><span class="n">get_temperature_months_and_years</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;choose-month.html&quot;</span><span class="p">,</span> <span class="n">months</span><span class="o">=</span><span class="n">months</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="year_in_valid_range"><a class="viewcode-back" href="../server.html#server.year_in_valid_range">[docs]</a><span class="k">def</span> <span class="nf">year_in_valid_range</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">years</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">year</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># if None default year is chosen, which is in valid range</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">year</span> <span class="o">&lt;=</span> <span class="n">years</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="convert_to_type"><a class="viewcode-back" href="../server.html#server.convert_to_type">[docs]</a><span class="k">def</span> <span class="nf">convert_to_type</span><span class="p">(</span><span class="n">convert</span><span class="p">,</span> <span class="n">string_arg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; If the argument is an empy string, convert to None, else convert string</span>
+<span class="sd">    to type specified with the convert function.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        arg (string): argument to convert</span>
+<span class="sd">        convert (function): to convert to int, pass the int() function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">string_arg</span> <span class="o">==</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">string_arg</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="k">else</span> <span class="n">convert</span><span class="p">(</span><span class="n">string_arg</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="temperature_plot"><a class="viewcode-back" href="../server.html#server.temperature_plot">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/temperature-plot&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">temperature_plot</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Uses parameters from the choose-month form to plot temperature data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">selected_month</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;selected_month&#39;</span><span class="p">)</span>
+    <span class="n">year_from</span> <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;year_from&#39;</span><span class="p">))</span>
+    <span class="n">year_to</span>   <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;year_to&#39;</span><span class="p">))</span>
+    <span class="n">y_min</span>   <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y_min&#39;</span><span class="p">))</span>
+    <span class="n">y_max</span>   <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y_max&#39;</span><span class="p">))</span>
+
+    <span class="n">months</span><span class="p">,</span> <span class="n">years</span> <span class="o">=</span> <span class="n">tc_plotter</span><span class="o">.</span><span class="n">get_temperature_months_and_years</span><span class="p">()</span>
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">year_in_valid_range</span><span class="p">(</span><span class="n">year_from</span><span class="p">,</span> <span class="n">years</span><span class="p">)</span> <span class="ow">and</span> <span class="n">year_in_valid_range</span><span class="p">(</span><span class="n">year_to</span><span class="p">,</span> <span class="n">years</span><span class="p">))):</span>
+        <span class="c1"># error if year not in appropriate range</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;choose-month.html&quot;</span><span class="p">,</span> <span class="n">months</span><span class="o">=</span><span class="n">months</span><span class="p">,</span>
+                               <span class="n">error</span><span class="o">=</span><span class="s2">&quot;Selected year must be between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">years</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c1"># Receive unique image url from the plotter.</span>
+    <span class="n">img_url</span> <span class="o">=</span> <span class="n">tc_plotter</span><span class="o">.</span><span class="n">plot_temperature</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">year_from</span><span class="o">=</span><span class="n">year_from</span><span class="p">,</span> <span class="n">year_to</span><span class="o">=</span><span class="n">year_to</span><span class="p">,</span>\
+                                          <span class="n">y_min</span><span class="o">=</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="o">=</span><span class="n">y_max</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;temperature-plot.html&quot;</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="n">month</span><span class="p">,</span> <span class="n">months</span><span class="o">=</span><span class="n">months</span><span class="p">,</span>
+                               <span class="n">img_url</span><span class="o">=</span><span class="n">img_url</span><span class="p">,</span> <span class="n">selected_month</span><span class="o">=</span><span class="n">selected_month</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CO2_plot"><a class="viewcode-back" href="../server.html#server.CO2_plot">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/CO2-plot&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">CO2_plot</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Uses parameters from the choose-month form to plot CO2 data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">years</span> <span class="o">=</span> <span class="n">tc_plotter</span><span class="o">.</span><span class="n">get_CO2_years</span><span class="p">()</span>
+    <span class="n">year_from</span> <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;year_from&#39;</span><span class="p">))</span>
+    <span class="n">year_to</span>   <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;year_to&#39;</span><span class="p">))</span>
+    <span class="n">y_min</span>   <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y_min&#39;</span><span class="p">))</span>
+    <span class="n">y_max</span>   <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;y_max&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="n">year_in_valid_range</span><span class="p">(</span><span class="n">year_from</span><span class="p">,</span> <span class="n">years</span><span class="p">)</span> <span class="ow">and</span> <span class="n">year_in_valid_range</span><span class="p">(</span><span class="n">year_to</span><span class="p">,</span> <span class="n">years</span><span class="p">))):</span>
+        <span class="c1"># error if year not in appropriate range</span>
+        <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;choose-range-CO2.html&quot;</span><span class="p">,</span>
+                               <span class="n">error</span><span class="o">=</span><span class="s2">&quot;Selected year must be between </span><span class="si">{}</span><span class="s2"> and </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">years</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="c1"># Receive unique image url from the plotter.</span>
+    <span class="n">img_url</span> <span class="o">=</span> <span class="n">tc_plotter</span><span class="o">.</span><span class="n">plot_CO2</span><span class="p">(</span><span class="n">year_from</span><span class="o">=</span><span class="n">year_from</span><span class="p">,</span> <span class="n">year_to</span><span class="o">=</span><span class="n">year_to</span><span class="p">,</span>\
+                                          <span class="n">y_min</span><span class="o">=</span><span class="n">y_min</span><span class="p">,</span> <span class="n">y_max</span><span class="o">=</span><span class="n">y_max</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;CO2-plot.html&quot;</span><span class="p">,</span> <span class="n">img_url</span><span class="o">=</span><span class="n">img_url</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CO2_bar"><a class="viewcode-back" href="../server.html#server.CO2_bar">[docs]</a><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s2">&quot;/CO2-bar&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">CO2_bar</span><span class="p">():</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;upper&#39;</span><span class="p">))</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="n">convert_to_type</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;lower&#39;</span><span class="p">))</span>
+
+    <span class="n">img_url</span> <span class="o">=</span> <span class="n">tc_plotter</span><span class="o">.</span><span class="n">bar_CO2</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render_template</span><span class="p">(</span><span class="s2">&quot;CO2-bar.html&quot;</span><span class="p">,</span> <span class="n">img_url</span><span class="o">=</span><span class="n">img_url</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Temperature and CO2 plotter</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Jonas Øren.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

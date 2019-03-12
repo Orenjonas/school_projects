@@ -1,0 +1,12 @@
+"()(//.*(?:$|\n))()": comment
+"(^\033.+m)((?:import|from ).+)()": import
+"()((?:".+"))()": string
+"()((?:'.+'))()": char
+"()(null)()": special
+"()(false)()": special
+"()(true)()": special
+"()(?<!\w)(else|(?<!el)if)()": if
+"()(for)()": for
+"()(while)()": while
+"()(int|long|boolean|String|char|float)()": type_declaration
+"()(return)()": return

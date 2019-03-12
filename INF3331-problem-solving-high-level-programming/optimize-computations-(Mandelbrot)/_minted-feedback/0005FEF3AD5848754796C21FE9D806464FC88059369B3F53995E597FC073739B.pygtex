@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{err}{\PYGZdl{}} \PYG{n}{python} \PYG{n}{mandelbrot}\PYG{o}{.}\PYG{n}{py} \PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n}{region} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{0.10639} \PYG{o}{\PYGZhy{}}\PYG{l+m+mf}{0.10634} \PYG{l+m+mf}{0.92313} \PYG{l+m+mf}{0.92317} \PYG{o}{\PYGZhy{}}\PYG{n}{n} \PYG{l+m+mi}{2500} \PYG{l+m+mi}{2500} \PYG{o}{\PYGZhy{}\PYGZhy{}}\PYG{n}{colors} \PYG{n}{universe}
+\PYG{n}{Traceback} \PYG{p}{(}\PYG{n}{most} \PYG{n}{recent} \PYG{n}{call} \PYG{n}{last}\PYG{p}{):}
+  \PYG{n}{File} \PYG{l+s+s2}{\PYGZdq{}mandelbrot.py\PYGZdq{}}\PYG{p}{,} \PYG{n}{line} \PYG{l+m+mi}{180}\PYG{p}{,} \PYG{o+ow}{in} \PYG{o}{\PYGZlt{}}\PYG{n}{module}\PYG{o}{\PYGZgt{}}
+    \PYG{k+kn}{from} \PYG{n+nn}{mandelbrot\PYGZus{}solver.implementations} \PYG{k+kn}{import} \PYG{n}{mandelbrot\PYGZus{}1}
+\PYG{n+ne}{ImportError}\PYG{p}{:} \PYG{n}{No} \PYG{n}{module} \PYG{n}{named} \PYG{l+s+s1}{\PYGZsq{}mandelbrot\PYGZus{}solver\PYGZsq{}}
+\end{Verbatim}

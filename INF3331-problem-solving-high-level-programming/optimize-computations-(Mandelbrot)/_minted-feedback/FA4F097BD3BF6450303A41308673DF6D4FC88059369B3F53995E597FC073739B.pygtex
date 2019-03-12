@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{Microsoft} \PYG{n}{Windows} \PYG{p}{[}\PYG{n}{Version} \PYG{l+m+mf}{10.0}\PYG{o}{.}\PYG{l+m+mf}{17134.285}\PYG{p}{]}
+\PYG{p}{(}\PYG{n}{c}\PYG{p}{)} \PYG{l+m+mi}{2018} \PYG{n}{Microsoft} \PYG{n}{Corporation}\PYG{o}{.} \PYG{n}{All} \PYG{n}{rights} \PYG{n}{reserved}\PYG{o}{.}
+
+\PYG{n}{C}\PYG{p}{:}\PYGZbs{}\PYG{n}{Users}\PYGZbs{}\PYG{n}{stian}\PYG{o}{\PYGZgt{}}\PYG{n}{python}
+\PYG{n}{Python} \PYG{l+m+mf}{3.5}\PYG{o}{.}\PYG{l+m+mi}{2} \PYG{o}{|}\PYG{n}{Anaconda} \PYG{l+m+mf}{2.5}\PYG{o}{.}\PYG{l+m+mi}{0} \PYG{p}{(}\PYG{l+m+mi}{64}\PYG{o}{\PYGZhy{}}\PYG{n}{bit}\PYG{p}{)}\PYG{o}{|} \PYG{p}{(}\PYG{n}{default}\PYG{p}{,} \PYG{n}{Jul}  \PYG{l+m+mi}{5} \PYG{l+m+mi}{2016}\PYG{p}{,} \PYG{l+m+mi}{11}\PYG{p}{:}\PYG{l+m+mi}{41}\PYG{p}{:}\PYG{l+m+mi}{13}\PYG{p}{)} \PYG{p}{[}\PYG{n}{MSC} \PYG{n}{v}\PYG{o}{.}\PYG{l+m+mi}{1900} \PYG{l+m+mi}{64} \PYG{n}{bit} \PYG{p}{(}\PYG{n}{AMD64}\PYG{p}{)]} \PYG{n}{on} \PYG{n}{win32}
+\PYG{n}{Type} \PYG{l+s+s2}{\PYGZdq{}help\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}copyright\PYGZdq{}}\PYG{p}{,} \PYG{l+s+s2}{\PYGZdq{}credits\PYGZdq{}} \PYG{o+ow}{or} \PYG{l+s+s2}{\PYGZdq{}license\PYGZdq{}} \PYG{k}{for} \PYG{n}{more} \PYG{n}{information}\PYG{o}{.}
+\PYG{o}{\PYGZgt{}}
+\end{Verbatim}
