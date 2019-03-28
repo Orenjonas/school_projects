@@ -1,4 +1,8 @@
-A module for visualizing the Mandelbrot set.
+## Mandelbrot visualisation and optimisation
+
+![Image submitted for class contest](https://raw.githubusercontent.com/Orenjonas/school_projects/master/python/optimize-computations/contest_image.jpg)
+
+This is a module for visualizing the Mandelbrot set. 
 
 The computations have three different implementations:
 - Pure python
@@ -9,7 +13,7 @@ The `time_implementation.py` script compares the runtime of the different
 implementations.
 
 ## Usage:
-For usage help:
+For usage info:
 ```bash
     >>> python3 mandelbrot.py -h
 ```
