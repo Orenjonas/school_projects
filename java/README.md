@@ -1,2 +1,3 @@
 ## IN1010 - Object-oriented programming
-<https://www.uio.no/studier/emner/matnat/ifi/IN1010/>
+Introductory course to object oriented programming in java.
+[couse description (norwegian)](https://www.uio.no/studier/emner/matnat/ifi/IN1010/)

@@ -1,6 +1,6 @@
 ## Mandelbrot visualisation and optimisation
 
-![Image submitted for class contest](https://raw.githubusercontent.com/Orenjonas/school_projects/master/python/optimize-computations/contest_image.jpg)
+![Image submitted for class contest](https://raw.githubusercontent.com/Orenjonas/school_projects/master/python/Optimize_Computations_Mandelbrot/contest_image.jpg)
 
 This is a module for visualizing the Mandelbrot set. 
 
