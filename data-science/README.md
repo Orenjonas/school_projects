@@ -1,4 +1,4 @@
-# STK2100 – Maskinlæring og statistiske metoder for prediksjon og klassifikasjon
+# STK2100 – Machine learning and statistical methods for prediction and classification
 An introductory course in machine-learning, using R as a programming language.
 
 Learning outcome:
