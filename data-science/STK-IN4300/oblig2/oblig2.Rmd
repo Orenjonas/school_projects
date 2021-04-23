@@ -1,0 +1,778 @@
+---
+title: "Mandatory assignment 2"
+author: "Jonas Øren"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(warnings = FALSE)
+knitr::opts_chunk$set(messages = FALSE)
+```
+
+```{r packpages}
+library(dplyr)
+```
+
+
+
+# Problem 1: Regression
+We read the data
+```{r}
+daphnia_data <- read.csv("https://archive.ics.uci.edu/ml/machine-learning-databases/00505/qsar_aquatic_toxicity.csv", sep=';', header = F)
+# Name the variables. The last column, LC50, is the response
+names(daphnia_data) <- c("TPSA", "SAacc", "H050", "MLOGP", "RDCHI", "GATS1p",
+                         "nN", "C040", "LC50")
+n <- nrow(daphnia_data)
+```
+
+And split into a training and a test set
+
+```{r train_test}
+set.seed(1)
+train_idx <- sample(1:n, size = round(2/3*n), replace = FALSE)
+test_idx <- (1:n)[-train_idx]
+```
+
+## 1. Analysis of count variables
+
+### Linear effect of count variables
+```{r linear_effect}
+# fit <- lm(LC50 ~ H050 + nN + C040, data = daphnia_data[train_idx, ])
+fit_linear <- lm(LC50 ~ ., data = daphnia_data[train_idx, ])
+
+```
+
+### Dichotmoized count variables
+```{r}
+# Dochotomize count data to 0 (not present), and 1 (present)
+dich_data <- daphnia_data
+dich_data <- mutate_at(dich_data, c("H050", "nN", "C040"),
+                       function(x) {x[x > 0] <- 1; return(factor(x))}
+                       )
+fit_dich <- lm(LC50 ~ ., data = dich_data[train_idx, ])
+```
+
+### Summaries
+#### Coefficients
+We first compare the two models by inspecting coefficient of the fitted regression models.
+
+For the model with linear effects we have.
+
+
+```{r}
+summary(fit_linear)
+```
+
+
+The model with dichotomized count variables gives the following output.
+
+
+```{r}
+summary(fit_dich)
+```
+From the printouts we see that the linear effect of nN is significant while the dichotomized variable is not.
+
+We also see that the coefficient for GATS1p in the dichotomized model have lower p-values than the coefficients in the
+model with linear effect of all variables. This effect changes between different test and training set combinations, and
+seem to be an effect of random variation more than from the model choice.
+
+
+#### Prediction error as MSE in test data
+We now inspect the prediction error, measured as squared error on the test data set
+\[
+ \frac{1}{n}\sum_{i \in \mathcal{T}}(\hat{y}_i - y_i)^2,
+\]
+where $\mathcal{T}$ is the set of indexes for the observations of the test set.
+
+
+
+```{r}
+# True respons on the test set
+truth <- daphnia_data$LC50[test_idx]
+# Predictions on the test set
+prediction_linear_model <- predict(fit_linear, newdata = daphnia_data[test_idx, ])
+prediction_dich_model <- predict(fit_dich, newdata = dich_data[test_idx, ])
+cat(paste("Prediction error linear model:     ",
+          round(mean((prediction_linear_model - truth)^2)
+                               , 2), "\n" ) )
+cat(paste("Prediction error dichotomous model:",
+          round(mean((prediction_dich_model - truth)^2)
+                               , 2) , "\n" ) )
+```
+We see that the model with linear effects for all the variables has a smaller prediction error on our test set.
+
+From this analysis linear effects of count variables appear unambiguously better at predicting and explaining the outcome,
+meaning the amount of molecules also has an effect, and we should not just look at the presence of molecules.
+
+
+## 2. Repeating the procedure for different test and training sets
+```{r}
+set.seed(2)
+# We will sum up the errors to compute the average
+lin_mod_error_sum <- 0
+dic_mod_error_sum <- 0
+
+for (i in 1:200) {
+  # Create new test and training sets
+  train_idx_i <- sample(1:n, size = round(2/3*n), replace = FALSE)
+  test_idx_i <- (1:n)[-train_idx_i]
+  
+  # Fit the new models
+  fit_linear <- lm(LC50 ~ ., data = daphnia_data[train_idx_i, ])
+  fit_dich <- lm(LC50 ~ ., data = dich_data[train_idx_i, ])
+  
+  # Find prediction error
+  
+  truth <- daphnia_data$LC50[test_idx_i]
+  prediction_linear_model <- predict(fit_linear, newdata = daphnia_data[test_idx_i, ])
+  prediction_dich_model <- predict(fit_dich, newdata = dich_data[test_idx_i, ])
+  
+  lin_mod_error_sum <- lin_mod_error_sum + mean((prediction_linear_model - truth)^2)
+  dic_mod_error_sum <- dic_mod_error_sum + mean((prediction_dich_model - truth)^2)
+}
+
+cat(paste("Average prediction error linear model:     ",
+          round(lin_mod_error_sum/200, 3), "\n",
+          "Average prediction error dichotomous model:",
+          round(dic_mod_error_sum/200, 3), "\n"))
+```
+
+The model with dichotomized effects has on average a bigger prediction error than the model with linear effects.
+Dichotomizing the variables ignore the size of the effect, which discards much information. I would guess this will
+be responsible for the poorer prediction performance of dichotomized variables.
+
+## 3. Variable selection
+
+http://www.sthda.com/english/articles/37-model-selection-essentials-in-r/154-stepwise-regression-essentials-in-r/
+
+### Stepwise selection
+
+```{r}
+full_model <- lm(LC50 ~ ., data = daphnia_data[train_idx, ])
+n <- length(train_idx)
+
+forwards_AIC <- step(full_model, 
+                     direction = "forward", 
+                     k = 2, # AIC
+                     trace = 0
+                     )
+backwards_AIC <- step(full_model, 
+                     direction = "backward",
+                     k = 2,
+                     trace = 0
+                     )
+forwards_BIC <- step(full_model, 
+                     direction = "forward",
+                     k = log(n),
+                     trace = 0
+                     )
+backwards_BIC <- step(full_model, 
+                     direction = "backward", 
+                     k = log(n),
+                     trace = 0
+                     )
+
+model_names <- c(  "Forwards  AIC: "
+                 , "Backwards AIC: "
+                 , "Forwards  BIC: "
+                 , "Backwards BIC: "
+)
+
+lasso_CV <- glmnet::glmnet(x = model.matrix(~ . , data = daphnia_data[train_idx, ]),
+                           y = daphnia_data$LC50[train_idx],
+                           family = "gaussian")
+
+# Print formulas to compare selected models
+cat(do.call(function(...) paste(..., sep = "\n")
+            , as.list(diag(outer( model_names
+                                  , lapply( c(  forwards_AIC$terms[[3]]
+                                              , backwards_AIC$terms[[3]]
+                                              , forwards_BIC$terms[[3]]
+                                              , backwards_BIC$terms[[3]]
+                                              )
+                                            , deparse # Convert formula to string
+                                            )
+                                  , paste)))))
+```
+
+
+We see that selection based on BIC selects more sparse models. This is as expected as the BIC penalizes the dimensionality
+of the model more than AIC.
+
+We also see that backward selection chooses a more sparse models than forward selection. 
+
+The most frugal method chose not to include H050 and C040 as predictors. The coefficients
+for these variables were also not significant in the full model fit.
+
+All the methods seem to agree on which variables are the most important.
+
+#### Prediction error
+We now compare the prediction errors of the models, computed on the test set.
+
+
+
+```{r}
+
+truth <- daphnia_data$LC50[test_idx]
+models <- list(forwards_AIC, backwards_AIC, forwards_BIC, backwards_BIC)
+
+for (i in 1:4) {
+  predicted <- predict(models[[i]], newdata = daphnia_data[test_idx,])
+  cat(paste(model_names[i], round(mean((truth - predicted)^2), 4), "\n"))
+}
+```
+The most sparse model, chosen by backwards elimination using BIC, performed
+better than the more saturated models on the test set.
+
+Backward selection has the advantage of accounting for the effect of other 
+important variables in the model when deciding on whether to keep a variable in
+the model. This may be why this method chose the best model in this case.
+
+## 4. Ridge regression
+
+### Find tuning parameter
+
+#### Cross validation
+
+The number of folds in cross validation is a bias variance tradeoff.
+Leave one out cross-validation has low bias but high variance, because the cross-validation
+sets are so similar to each other, we are close to only making one estimation of the error.
+The bias depends on sample size and the effect of sample size on model bias and variance.
+Because we have relatively many observations we will choose to use 10-fold cross validation.
+
+We now find the optimal lambda according to deviance, and plot the error estimated for
+each lambda.
+
+```{r}
+library(glmnet)
+set.seed(432)
+x = model.matrix(LC50 ~ . - 1, data = daphnia_data[train_idx, ])
+y = daphnia_data$LC50[train_idx]
+cv_lambda <- cv.glmnet(x, y
+                       , lambda = exp(seq(-6, 0, length.out = 100))
+                       , nfolds = 10
+                       , alpha = 0  # Ridge regression
+                       )
+plot(cv_lambda)
+```
+
+The dotted lines show the minimizing lambda, and the lambda chosen according to the "one standard
+deviation rule".
+The "one standard deviation rule" is to choose the most
+parsimonious model parameter less than one standard deviation from the minimizing value.
+
+
+```{r}
+print(cv_lambda$lambda.1se)
+print(mean(cv_lambda$cvsd))
+```
+Cross validation chooses $\lambda = 0.42$. The estimated standard deviation of the cross validation estimate
+is $0.19$.
+
+
+#### Bootstrapping
+We will now estimate the optimal $\lambda$ with respect to deviance using bootstrapping.
+```{r}
+
+# The chosen grid of lambda-values, to optimize over
+lda_seq <- exp(seq(-6, 0, length.out = 100))
+
+deviance_estimate <- NULL
+error_SD_estimate <- NULL
+
+for (lda in 1:100) {
+  MSE_boot <- NULL
+  for (i in 1:100) {
+    id_boot <- sample(1:nrow(daphnia_data), replace = TRUE)
+    
+    # Select bootstrap sample
+    x = model.matrix(LC50 ~ . -1, data = daphnia_data[id_boot, ])
+    y = daphnia_data$LC50[id_boot]
+    # Store mean squared prediction error
+    MSE_boot[i] <- mean( (predict(glmnet(x, y, family = "gaussian", alpha = 0, 
+                                         lambda = lda_seq[lda])
+                                  , newx = model.matrix(LC50 ~ . -1, data = daphnia_data[-id_boot, ])
+                                  , newy = daphnia_data$LC50[-id_boot]
+                                  )
+                          - daphnia_data$LC50[-id_boot])^2
+                         )
+  }
+  # Average over error for this lambda
+  deviance_estimate[lda] <- mean(MSE_boot)
+  # Estimate standard deviation of errors.
+  error_SD_estimate[lda] <- sd(MSE_boot)
+}
+```
+
+
+
+We plot the estimated expected prediction error for each lambda. 
+```{r}
+plot(log(lda_seq), deviance_estimate, xlab=expression(log(lambda)),
+     ylab="Mean-squared error")
+lines(log(lda_seq), deviance_estimate + error_SD_estimate, lty=2, col="red")
+lines(log(lda_seq), deviance_estimate - error_SD_estimate, lty=2, col="red")
+id_lowest_error <- which.min(deviance_estimate)
+one_sd_from_min <- deviance_estimate[id_lowest_error] + error_SD_estimate[id_lowest_error]
+abline(h=one_sd_from_min,
+       lty=1, col="grey")
+
+# Find lambda according to "one standard deviation rule"
+boot_lda <- max(lda_seq[deviance_estimate < one_sd_from_min])
+abline(v=log(lda_seq[id_lowest_error]), lty=3, col="blue")
+abline(v=log(boot_lda), lty=3, col="blue")
+```
+
+
+The red bands are estimated standard deviation of the estimated error. The blue lines shows the minimizing lambda and
+the lambda chosen by the "one standard deviation rule".
+
+
+
+```{r}
+print(boot_lda)
+print(mean(error_SD_estimate))
+```
+The bootstrapping procedure chooses $\lambda = 0.32$. The estimated standard deviation of
+the bootstrap estimates is $0.16$.
+
+In order to compare the two procedures we now superimpose the two plots of estimated errors.
+```{r}
+plot(cv_lambda)
+points(log(lda_seq), deviance_estimate, xlab=expression(log(lambda)),
+       ylab="Mean-squared error")
+lines(log(lda_seq), deviance_estimate + error_SD_estimate, lty=2, col="red")
+lines(log(lda_seq), deviance_estimate - error_SD_estimate, lty=2, col="red")
+id_lowest_error <- which.min(deviance_estimate)
+one_sd_from_min <- deviance_estimate[id_lowest_error] + error_SD_estimate[id_lowest_error]
+abline(h=one_sd_from_min,
+       lty=2, col="grey")
+
+# Find lambda according to "one standard deviation rule"
+boot_lda <- max(lda_seq[deviance_estimate < one_sd_from_min])
+abline(v=log(lda_seq[id_lowest_error]), lty=3, col="blue")
+abline(v=log(boot_lda), lty=3, col="blue")
+```
+We see that in this case the procedures obtained a similar result. There is
+still some difference, and it could have been higher. There is much
+variability in each procedure, and the somewhat arbitrary
+choice of number of folds and number of bootstrap iterations will effect this.
+
+
+## 5. Generalized additive models
+We load the required package.
+```{r}
+library(gam)
+```
+
+And fit a relatively complex GAM with smoothing splines for each variable. The complexity parameter, effective degrees
+of freedom of the splines is set to five, a moderately complex model. Effective degrees of freedom is
+linked to the penalty on the second derivative of the smoothing splines.
+One degree of freedom produces an almost linear fit.
+```{r}
+# Fit the GAM
+fit_GAM <- gam(LC50 ~ s(TPSA, 5)
+           + s(SAacc, 5)
+           + s(H050, 5)
+           + s(MLOGP, 5) 
+           + s(RDCHI, 5) 
+           + s(GATS1p, 5) 
+           + s(nN, 5) 
+           + s(C040, 5)
+           , family = gaussian
+           , data = daphnia_data[train_idx, ])
+summary(fit_GAM)
+```
+We see that, except for C040, all parameters have a significant effect either in the parametric
+or in the nonparametric effect, where the nonparametric effect is simply the linear effect.
+
+We now plot the parameters, to inspect the nonlinearity of the estimated effects.
+```{r}
+par(mfrow=c(2,4))
+plot(fit_GAM, se=T)
+```
+
+
+The algorithm does not seem to fit very nonlinear effects at the bulk of the observations.
+There might be a slight nonlinear effect for the categorical variables H050, nN and C040.
+Perhaps this would better be modeled by factor variables, but at the cost of added complexity and
+risk of some overfitting.
+
+We now fit a less complex GAM for comparison. We set the estimated degrees of freedom for the splines to one.
+
+```{r}
+# Fit the GAM
+linear_GAM <- gam(LC50 ~ s(TPSA, 1.1)
+           + s(SAacc, 1.1)
+           + s(H050, 1.1)
+           + s(MLOGP, 1.1) 
+           + s(RDCHI, 1.1) 
+           + s(GATS1p, 1.1) 
+           + s(nN, 1.1) 
+           + s(C040, 1.1)
+           , family = gaussian
+           , data = daphnia_data[train_idx, ])
+summary(linear_GAM)
+
+```
+There is not much increase in AIC from the more complex model, indicating that there is not much gained from the
+nonlinear effects. It might appear that C040 now has a significant linear effect, but if we inspect the plot of the
+parameter, we see that the parameter is estimated to be near 0 for all values of C040.
+
+Plots
+```{r}
+par(mfrow=c(2,4))
+plot(linear_GAM, se=T)
+```
+
+
+## 6. Regression trees
+
+We will use the `rpart` package to compute regression trees. This package uses cross validation to estimate 
+```{r}
+library(rpart)
+```
+
+
+```{r}
+fitted_tree <- rpart(LC50 ~ ., data = daphnia_data[train_idx, ], method = "anova",
+                     control = rpart.control(xval = 10)  # 10-fold cross validation for pruning
+                     )
+```
+
+
+```{r}
+rsq.rpart(fitted_tree)
+# rpart.control
+# rpart.object
+# .summary
+# .print
+```
+
+The algorithm has chosen not to use the count variables nN, and C040. I could not find out why,
+as it has chosen to keep H050, which is also a count variable.
+
+From the plot of improvement in R-square, and reduction in relative error we see
+that the biggest improvement is in the first two splits.
+
+We now use 10-fold cross validation to choose the optimal tuning parameter `cp` according to
+mean squared error.
+
+```{r}
+library(caret)
+```
+```{r}
+set.seed(432)
+fitControl <- trainControl(## 10-fold CV
+                           method = "repeatedcv",
+                           number = 10,
+                           ## repeated ten times
+                           repeats = 10)
+tree_fit <- train(LC50 ~ ., data = daphnia_data[train_idx, ], 
+                 method = 'rpart',
+                 trControl = fitControl,
+                 ## This last option is actually one
+                 ## for gbm() that passes through
+                 )
+tree_fit
+```
+
+
+Cross validation chooses `cp = 0.05466436`. We prune the model using this complexity parameter.
+
+
+```{r}
+pruned <- rpart::prune(fitted_tree, cp = 0.05466436)
+# Uses the `rpart.plot` package to plot the tree properly
+rpart.plot::prp(pruned, digits = 4)
+```
+
+
+The selected model only uses two splits, as expected.
+
+## 7. Comparing all the models
+
+```{r}
+predicted_train <- list(  predict(fit_linear, newdata = daphnia_data[train_idx, ])
+                  , predict(backwards_BIC, newdata = daphnia_data[train_idx, ])
+                  , predict(fit_GAM, newdata = daphnia_data[train_idx, ])
+                  , predict(pruned, newdata = daphnia_data[train_idx, ])
+                  , predict(cv_lambda,
+                            newx = model.matrix(LC50 ~ . - 1, data = daphnia_data[train_idx, ]),
+                            newy = daphnia_data$LC50[train_idx])
+                  )
+predicted_test <- list(  predict(fit_linear, newdata = daphnia_data[test_idx, ])
+                       , predict(backwards_BIC, newdata = daphnia_data[test_idx, ])
+                       , predict(fit_GAM, newdata = daphnia_data[test_idx, ])
+                       , predict(pruned, newdata = daphnia_data[test_idx, ])
+                       , predict(cv_lambda,
+                                 newx = model.matrix(LC50 ~ . - 1, data = daphnia_data[test_idx, ]),
+                                 newy = daphnia_data$LC50[test_idx])
+)
+RSS_train <- NULL
+RSS_test <- NULL
+for (i in 1:5) {
+  RSS_test[i] <-  mean( ( predicted_test[[i]]  - daphnia_data$LC50[test_idx]  )^2 )
+  RSS_train[i] <- mean( ( predicted_train[[i]] - daphnia_data$LC50[train_idx] )^2 )
+}
+```
+```{r}
+# plot(meanResidents, axes=FALSE, xlab="dorms")
+models <- c(  "Linear reg."
+            , "Var. sel."
+            , "GAM"
+            , "tree"
+            , "Ridge r."
+            )
+barplot(rbind(RSS_train, RSS_test), beside=T, names.arg = models,
+        legend.text = c("Train", "Test"),
+        )
+```
+We see that all the models except the regression tree perform very similarly on the test set.
+The generalized linear model performs better on the training data, but performs worse
+on the test set, indicating that it has overfit the data. The regression tree performs
+the worst on both sets, indicating that a linear model adopted by the other models
+will model the underlying mechanism well.
+
+
+
+# Problem 2. Classification
+
+Unfortunately I ran out of time to do this problem properly. I will go over it more thoroughly later.
+
+
+```{r}
+# Clear the R environment
+rm(list=ls())
+library(mlbench)
+data(PimaIndiansDiabetes)
+```
+
+## Split data
+We split the data set into a trianing and test set. The method `createDataPartition` preserves
+the overall class distribution of the predictor.
+```{r}
+library(caret)
+trainIndex <- createDataPartition(PimaIndiansDiabetes$diabetes, p = 2/3, 
+                                  list = FALSE, 
+                                  times = 1)
+
+# Check if class proportions are equal
+a <- summary(PimaIndiansDiabetes$diabetes)
+a[1]/a[2]
+a <- summary(PimaIndiansDiabetes$diabetes[trainIndex])
+a[1]/a[2]
+a <- summary(PimaIndiansDiabetes$diabetes[-trainIndex])
+a[1]/a[2]
+```
+
+## 1. k-neares neighbours
+
+We find the number of neighbours using 5-fold cross validation, using the caret package
+for convenience.
+
+
+```{r}
+set.seed(432)
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 5, # 5 folds
+                            repeats = 10 # repeated ten times
+                           )
+knn_fit_5f <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'knn',
+                 trControl = fitControl,
+                 preProcess = c("center", "scale"),
+                 tuneLength = 20
+                 )
+knn_fit_5f
+```
+
+```{r}
+set.seed(432)
+fitControl <- trainControl(method = "LOOCV")
+knn_fit_loo <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'knn',
+                 trControl = fitControl,
+                 preProcess = c("center", "scale"),
+                 tuneLength = 20
+                 )
+knn_fit_loo
+```
+```{r}
+
+# Noramlize test and train data based on the training data, with the help of the caret package
+normalized_data <- predict(preProcess(PimaIndiansDiabetes[trainIndex, ],
+                                      method = c("center", "scale")),
+                           newdata = PimaIndiansDiabetes)
+
+predicted_knn <- function(k) {
+  # Calculates prediction on the test set of a kNN-model
+  # trained on the test set using k neighbours
+  class::knn(train = normalized_data[trainIndex, -9],
+             test = normalized_data[-trainIndex, -9], 
+             cl = normalized_data$diabetes[trainIndex],
+             k = k
+             )
+}
+
+k_vals <- knn_fit_5f$results[["k"]]
+
+test_error <- NULL
+for (i in 1:length(k_vals)) {
+  test_error[i] <- 1 - mean(predicted_knn(k=k_vals[i]) 
+                            == PimaIndiansDiabetes$diabetes[-trainIndex])
+}
+```
+
+We inspect the test error, using proportion of mispredictions as a measure.
+
+
+```{r}
+plot(k_vals, 1 - knn_fit_5f$results[["Accuracy"]], ylim = c(0.2, 0.3),
+     col = "blue", type = "l",
+     xlab = "k", ylab = "Proportion of mispredictions")
+lines(k_vals, 1 - knn_fit_loo$results[["Accuracy"]], col = "red")
+lines(k_vals, test_error, col = "black")
+legend("bottomleft", legend = c("Test error", "Train error, 5 folds", "Train error, LOO"),
+       lty = 1,
+       col = c("black", "blue", "red"))
+```
+
+
+We see that leave-one-out CV has higher variance than 5-fold CV, as expected. Both seem to aim for the
+same error estimate, but bots seem to underestimate the true error in the data.
+
+The test error seem to be minimized for k = 12, a value far below the chosen k values, that would
+fit the model more closely to the data. But this minimizing value seem to be the product of random
+variation, and I would expect the "one standard deviation" rule to imply a far higher value for k,
+seeng as the error does not change much for k up to 40.
+
+
+## 2. GAM for classification
+
+```{r, results=F, message=F, warning=F}
+
+set.seed(432)
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 10,
+                           repeats = 2,
+)
+gam_fit <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'gamboost',
+                 # trControl = fitControl,
+                 preProcess = c("center", "scale")
+                 # , tuneLength = 10
+)
+gam_fit
+```
+I was not able to figure this method out properly.
+
+
+
+## 3. Classification trees
+
+
+### Bagging tree
+```{r}
+library(ipred)
+set.seed(432)
+fit_tree_bagging <- bagging(diabetes ~ ., data = normalized_data[trainIndex, ], coob = T)
+
+fitControl <- trainControl(method = "repeatedcv",
+                           number = 10,
+                           repeats = 3)
+tree_fit <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'rpart',
+                 trControl = fitControl,
+                 )
+```
+```{r}
+pruned_bagging <- prune(tree = fit_tree_bagging, cp = tree_fit$bestTune[[1]])
+print(pruned_bagging)
+```
+
+### Random forest
+
+```{r}
+set.seed(432)
+random_forest <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'cforest',
+                 trControl = fitControl,
+                 preProcess = c("center", "scale")
+                 # , tuneLength = 10
+)
+random_forest
+```
+
+### Neural network
+```{r, results=F}
+set.seed(432)
+nnet <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'nnet',
+                 trControl = fitControl,
+                 preProcess = c("center", "scale")
+                 # , tuneLength = 10
+)
+```
+
+
+```{r}
+nnet
+```
+
+
+
+
+### Boosted tree
+```{r}
+set.seed(432)
+ada_fit <- train(diabetes ~ ., data = PimaIndiansDiabetes[trainIndex, ], 
+                 method = 'ada',
+                 trControl = fitControl,
+                 preProcess = c("center", "scale")
+                 # , tuneLength = 10
+)
+ada_fit
+```
+
+## 4. Choice of method
+```{r}
+predicted_test <- lapply(
+  list(knn_fit_5f,
+       knn_fit_loo,
+       gam_fit, 
+       random_forest,
+       nnet,
+       ada_fit
+  ),
+  function (x) predict(x,
+                       newdata = PimaIndiansDiabetes[-trainIndex, ])
+)
+predicted_test[[7]] <- predict( pruned_bagging, newdata = normalized_data[-trainIndex, ])
+
+errors <- sapply(predicted_test,
+                 function(x) 1- mean(x == PimaIndiansDiabetes$diabetes[-trainIndex]))
+
+models <- c(  "kNN 5f"
+            , "kNN LOO"
+            , "GAM"
+            , "Rnd for"
+            , "nnet"
+            , "ADA"
+            , "Bagging"
+            )
+barplot(errors[-3], beside=F, names.arg = models[-3])
+```
+
+
+I was not able to properly implement the GAM procedure, so we will simply compare the other models.
+The difference in their performance is so small that the choice is almost arbitrary. Still
+the neural network performed slightly better than the rest on the test set, and is therefore
+the recommended model.
+
+
+
+
+
